@@ -287,7 +287,10 @@ export async function createOpportunityInTx(tx: Tx, ctx: TenantContext, input: O
     .returning();
   if (!opp) throw new Error("Failed to create opportunity");
   if (input.primaryContactId) {
-    await tx.insert(opportunityContacts).values({ tenantId: ctx.tenantId, opportunityId: opp.id, contactId: input.primaryContactId, isPrimary: true });
+    const [pc] = await tx.select({ role: contacts.buyingRole }).from(contacts).where(eq(contacts.id, input.primaryContactId));
+    await tx
+      .insert(opportunityContacts)
+      .values({ tenantId: ctx.tenantId, opportunityId: opp.id, contactId: input.primaryContactId, isPrimary: true, role: pc?.role ?? "other" });
   }
   await tx.insert(opportunityStageHistory).values({
     tenantId: ctx.tenantId,

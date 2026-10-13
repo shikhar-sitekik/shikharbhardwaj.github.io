@@ -563,7 +563,7 @@ export async function convertLead(ctx: TenantContext, leadId: string, input: Con
         tenantId: ctx.tenantId,
         opportunityId,
         contactId,
-        role: "other",
+        role: (await tx.select({ role: contacts.buyingRole }).from(contacts).where(eq(contacts.id, contactId)))[0]?.role ?? "other",
         isPrimary: true,
       });
       await tx.insert(opportunityStageHistory).values({

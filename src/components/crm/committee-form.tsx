@@ -15,15 +15,15 @@ export function CommitteeForm({ opportunityId, contacts }: { opportunityId: stri
   }, [state]);
   if (contacts.length === 0) return <p className="px-4 py-3 text-[12px] text-text-3">Add contacts to the account to build the buying committee.</p>;
   return (
-    <form action={action} className="flex flex-wrap items-center gap-2 border-t border-border px-4 py-2.5">
-      <Select name="contactId" className="h-7 min-w-0 flex-1" aria-label="Contact" required>
+    <form action={action} className="grid grid-cols-[1fr_auto] gap-2 border-t border-border px-4 py-2.5">
+      <Select name="contactId" className="col-span-2 h-7" aria-label="Contact" required>
         {contacts.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
           </option>
         ))}
       </Select>
-      <Select name="role" className="h-7 w-auto" aria-label="Role" defaultValue="influencer">
+      <Select name="role" className="h-7" aria-label="Role" defaultValue="influencer">
         {Object.entries(BUYING_ROLE_LABELS).map(([k, l]) => (
           <option key={k} value={k}>
             {l}

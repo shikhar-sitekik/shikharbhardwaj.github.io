@@ -37,7 +37,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       />
       <div className="border-b border-border bg-surface">
         <FilterBar
-          searchPlaceholder="(filters apply to all tiles)"
+          search={false}
           filters={[
             { key: "period", label: "This quarter", options: [{ value: "last_quarter", label: "Last quarter" }, { value: "ytd", label: "Year to date" }, { value: "last_year", label: "Last year" }] },
             { key: "pipeline", label: "All pipelines", options: pipelines.map((p) => ({ value: p.id, label: p.name })) },

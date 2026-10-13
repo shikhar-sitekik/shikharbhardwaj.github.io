@@ -33,7 +33,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
     <div>
       <PageHeader title="Reports" description={`${period.label} · values in ${cur}. Built from live records; exports are available from each list view.`} />
       <div className="border-b border-border bg-surface">
-        <FilterBar searchPlaceholder="(period applies to all reports)" filters={[{ key: "period", label: "This quarter", options: [{ value: "last_quarter", label: "Last quarter" }, { value: "ytd", label: "Year to date" }, { value: "last_year", label: "Last year" }] }]} />
+        <FilterBar search={false} filters={[{ key: "period", label: "This quarter", options: [{ value: "last_quarter", label: "Last quarter" }, { value: "ytd", label: "Year to date" }, { value: "last_year", label: "Last year" }] }]} />
       </div>
       <div className="grid gap-4 p-4 md:p-6 xl:grid-cols-2">
         <Card>

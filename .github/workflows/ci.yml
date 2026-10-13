@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: exato_owner
+          POSTGRES_PASSWORD: exato_dev
+          POSTGRES_DB: exato_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U exato_owner" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Prepare databases and app role
+        env:
+          PGPASSWORD: exato_dev
+        run: |
+          psql -h localhost -U exato_owner -d exato_test -c "CREATE DATABASE exato_e2e"
+          # Role is created by migrations; enable login for tests (CI-only password).
+          psql -h localhost -U exato_owner -d exato_test -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='exato_app') THEN CREATE ROLE exato_app NOLOGIN NOINHERIT; END IF; END \$\$; ALTER ROLE exato_app WITH LOGIN PASSWORD 'exato_app_dev';"
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/

@@ -13,7 +13,17 @@ export interface FilterDef {
 }
 
 /** URL-driven filters: every view is shareable and back-button friendly. */
-export function FilterBar({ filters, searchPlaceholder = "Search…", children }: { filters: FilterDef[]; searchPlaceholder?: string; children?: React.ReactNode }) {
+export function FilterBar({
+  filters,
+  searchPlaceholder = "Search…",
+  search = true,
+  children,
+}: {
+  filters: FilterDef[];
+  searchPlaceholder?: string;
+  search?: boolean;
+  children?: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -43,6 +53,7 @@ export function FilterBar({ filters, searchPlaceholder = "Search…", children }
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2 border-b border-border px-4 py-2", pending && "opacity-70")}>
+      {search ? (
       <div className="relative w-full max-w-[260px]">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-text-3" />
         <input
@@ -53,6 +64,7 @@ export function FilterBar({ filters, searchPlaceholder = "Search…", children }
           className="h-8 w-full rounded-md border border-border bg-surface pr-2 pl-8 text-[13px] placeholder:text-text-3 focus:border-accent focus:outline-none"
         />
       </div>
+      ) : null}
       {filters.map((f) => (
         <Select
           key={f.key}

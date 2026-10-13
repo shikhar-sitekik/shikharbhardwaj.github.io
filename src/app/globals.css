@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /*
  * Exato One design tokens.
@@ -41,7 +41,7 @@
   --chart-5: #64748b;
 }
 
-.dark {
+:root[data-theme="dark"] {
   --bg: #0a111f;
   --surface: #0f1829;
   --surface-2: #131e33;
@@ -71,6 +71,40 @@
   --chart-3: #f2a93b;
   --chart-4: #a48bff;
   --chart-5: #8b98ad;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a111f;
+    --surface: #0f1829;
+    --surface-2: #131e33;
+    --surface-hover: #17243c;
+    --border: #1f2c45;
+    --border-strong: #2a3a58;
+    --text: #e6ebf4;
+    --text-2: #a9b4c8;
+    --text-3: #7d899f;
+    --accent: #4c8dff;
+    --accent-hover: #6aa0ff;
+    --accent-soft: #15284a;
+    --accent-text: #06101f;
+    --success: #3ccb8a;
+    --success-soft: #0f2e22;
+    --warning: #f2a93b;
+    --warning-soft: #332411;
+    --danger: #ff7a6e;
+    --danger-soft: #3a1714;
+    --chrome: #070d19;
+    --chrome-2: #0c1527;
+    --chrome-border: #18243b;
+    --chrome-active: #15233e;
+    --ring: #4c8dff;
+    --chart-1: #4c8dff;
+    --chart-2: #2ec4b6;
+    --chart-3: #f2a93b;
+    --chart-4: #a48bff;
+    --chart-5: #8b98ad;
+  }
 }
 
 @theme inline {

@@ -30,6 +30,17 @@ export function currentQuarter(now = new Date()): Period {
   return { from, to, label: `Q${q + 1} ${now.getUTCFullYear()}` };
 }
 
+export function resolvePeriod(key: string | undefined, now = new Date()): Period {
+  const y = now.getUTCFullYear();
+  if (key === "last_quarter") {
+    const q = currentQuarter(now);
+    return currentQuarter(new Date(q.from.getTime() - 864e5));
+  }
+  if (key === "ytd") return { from: new Date(Date.UTC(y, 0, 1)), to: new Date(Date.UTC(y + 1, 0, 1)), label: `${y} year to date` };
+  if (key === "last_year") return { from: new Date(Date.UTC(y - 1, 0, 1)), to: new Date(Date.UTC(y, 0, 1)), label: `${y - 1}` };
+  return currentQuarter(now);
+}
+
 interface MoneyAgg {
   currency: string;
   total: string;

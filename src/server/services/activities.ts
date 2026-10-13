@@ -6,7 +6,7 @@ import type { TenantContext } from "@/server/auth/context";
 import { ForbiddenError, NotFoundError, ValidationError } from "@/server/auth/permissions";
 import { writeAudit } from "@/server/lib/audit";
 import { activityInputSchema, fieldErrors } from "@/server/validation/crm";
-import { actor, assertOwnerAccess, assertValidOwner, need } from "./_shared";
+import { actor, assertOwnerAccess, assertValidOwner, need, ownerScope } from "./_shared";
 
 export type RelatedRef =
   | { type: "lead"; id: string }
@@ -183,6 +183,7 @@ export async function listTasks(
   need(ctx, "activity:read");
   const conds: (SQL | undefined)[] = [eq(activities.type, "task")];
   if (f.scope !== "team" || ctx.dataScope === "own") conds.push(eq(activities.ownerId, ctx.userId));
+  else conds.push(ownerScope(ctx, activities.ownerId));
   const startOfDay = sql`date_trunc('day', now())`;
   switch (f.status ?? "open") {
     case "open":

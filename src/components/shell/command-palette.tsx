@@ -41,22 +41,19 @@ export function CommandPalette({
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (next: boolean) => {
+    if (!next) {
       setQuery("");
       setHits([]);
     }
-  }, [open]);
+    onOpenChange(next);
+  };
 
   useEffect(() => {
     const q = query.trim();
-    if (q.length < 2) {
-      setHits([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (q.length < 2) return;
     const handle = window.setTimeout(async () => {
+      setLoading(true);
       abortRef.current?.abort();
       const ctrl = new AbortController();
       abortRef.current = ctrl;
@@ -75,8 +72,12 @@ export function CommandPalette({
     return () => window.clearTimeout(handle);
   }, [query]);
 
+  const shortQuery = query.trim().length < 2;
+  const shownHits = shortQuery ? [] : hits;
   const go = useCallback(
     (href: string) => {
+      setQuery("");
+      setHits([]);
       onOpenChange(false);
       router.push(href);
     },
@@ -84,7 +85,7 @@ export function CommandPalette({
   );
 
   return (
-    <D.Root open={open} onOpenChange={onOpenChange}>
+    <D.Root open={open} onOpenChange={handleOpenChange}>
       <D.Portal>
         <D.Overlay className="fixed inset-0 z-50 bg-[#0b1426]/45" />
         <D.Content
@@ -94,7 +95,7 @@ export function CommandPalette({
           <D.Title className="sr-only">Search and commands</D.Title>
           <Command shouldFilter={false} loop label="Search and commands">
             <div className="flex items-center gap-2 border-b border-border px-3.5">
-              {loading ? <Loader2 className="size-4 animate-spin text-text-3" /> : <Search className="size-4 text-text-3" />}
+              {loading && !shortQuery ? <Loader2 className="size-4 animate-spin text-text-3" /> : <Search className="size-4 text-text-3" />}
               <Command.Input
                 value={query}
                 onValueChange={setQuery}
@@ -104,12 +105,12 @@ export function CommandPalette({
               <kbd className="rounded border border-border px-1.5 text-[11px] text-text-3">Esc</kbd>
             </div>
             <Command.List className="max-h-[56vh] overflow-y-auto p-1.5">
-              {query.trim().length >= 2 && !loading && hits.length === 0 ? (
+              {!shortQuery && !loading && shownHits.length === 0 ? (
                 <Command.Empty className="px-3 py-6 text-center text-[13px] text-text-3">No records match “{query}”.</Command.Empty>
               ) : null}
-              {hits.length > 0 ? (
+              {shownHits.length > 0 ? (
                 <Group heading="Records">
-                  {hits.map((h) => {
+                  {shownHits.map((h) => {
                     const Icon = ENTITY_ICON[h.entity];
                     return (
                       <Item key={`${h.entity}-${h.id}`} value={`${h.entity}-${h.id}`} onSelect={() => go(h.href)}>

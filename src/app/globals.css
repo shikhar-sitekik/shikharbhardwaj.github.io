@@ -67,9 +67,9 @@
   --chrome-active: #15233e;
   --ring: #4c8dff;
   --chart-1: #4c8dff;
-  --chart-2: #2ec4b6;
-  --chart-3: #f2a93b;
-  --chart-4: #a48bff;
+  --chart-2: #1fa99c;
+  --chart-3: #c9821a;
+  --chart-4: #9479f0;
   --chart-5: #8b98ad;
 }
 
@@ -100,9 +100,9 @@
     --chrome-active: #15233e;
     --ring: #4c8dff;
     --chart-1: #4c8dff;
-    --chart-2: #2ec4b6;
-    --chart-3: #f2a93b;
-    --chart-4: #a48bff;
+    --chart-2: #1fa99c;
+    --chart-3: #c9821a;
+    --chart-4: #9479f0;
     --chart-5: #8b98ad;
   }
 }

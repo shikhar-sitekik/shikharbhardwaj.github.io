@@ -102,6 +102,8 @@ export function parseDate(input: unknown, order: "dmy" | "mdy" = "dmy"): string 
     return null;
   }
   const s = String(input).trim();
+  // Excel serial dates arrive as bare numbers when cell styles are not read.
+  if (/^\d{5}(\.\d+)?$/.test(s)) return parseDate(Number(s), order);
   let m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ].*)?$/.exec(s);
   if (m) return isoDate(Number(m[1]), Number(m[2]), Number(m[3]));
   m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/.exec(s);

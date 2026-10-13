@@ -26,9 +26,7 @@ export function ActivityComposer({
   const [kind, setKind] = useState<Kind>("note");
   const [state, action] = useActionState(logActivityAction.bind(null, revalidate), { status: "idle" });
   const formRef = useRef<HTMLFormElement>(null);
-  const [tzOffset, setTzOffset] = useState(0);
-
-  useEffect(() => setTzOffset(new Date().getTimezoneOffset()), []);
+  const tzRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (state.status === "success") {
       toast.success(state.message ?? "Saved");
@@ -38,9 +36,16 @@ export function ActivityComposer({
 
   const fe = state.status === "error" ? state.fieldErrors : undefined;
   return (
-    <form ref={formRef} action={action} className="border-b border-border px-4 py-3">
+    <form
+      ref={formRef}
+      action={action}
+      onSubmit={() => {
+        if (tzRef.current) tzRef.current.value = String(new Date().getTimezoneOffset());
+      }}
+      className="border-b border-border px-4 py-3"
+    >
       <input type="hidden" name="type" value={kind} />
-      <input type="hidden" name="tzOffset" value={tzOffset} />
+      <input ref={tzRef} type="hidden" name="tzOffset" defaultValue="0" />
       {Object.entries(related).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
       <div className="mb-2 flex gap-1" role="tablist" aria-label="Activity type">
         {KINDS.map((k) => (

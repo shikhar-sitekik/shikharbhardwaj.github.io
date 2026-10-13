@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BrandMark } from "@/components/brand";
 import { cn } from "@/lib/cn";
 import type { NavGroup } from "@/lib/navigation";
@@ -14,27 +14,15 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Sidebar({ groups, tenantName }: { groups: NavGroup[]; tenantName: string }) {
+export function Sidebar({ groups, tenantName, initialCollapsed }: { groups: NavGroup[]; tenantName: string; initialCollapsed: boolean }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    try {
-      setCollapsed(window.localStorage.getItem("sidebar") === "collapsed");
-    } catch {
-      /* storage unavailable */
-    }
-  }, []);
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
 
   const toggle = () => {
-    setCollapsed((c) => {
-      try {
-        window.localStorage.setItem("sidebar", c ? "expanded" : "collapsed");
-      } catch {
-        /* storage unavailable */
-      }
-      return !c;
-    });
+    const next = !collapsed;
+    setCollapsed(next);
+    // Per-user UI preference only; read server-side to avoid a layout flash.
+    document.cookie = `sidebar=${next ? "collapsed" : "expanded"}; path=/; max-age=31536000; samesite=lax`;
   };
 
   return (

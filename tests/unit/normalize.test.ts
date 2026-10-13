@@ -62,7 +62,10 @@ describe("parseDate", () => {
     expect(parseDate("4 Mar 2025")).toBe("2025-03-04");
     expect(parseDate("March 4, 2025")).toBe("2025-03-04");
   });
-  it("parses Excel serials", () => expect(parseDate(45720)).toBe("2025-03-04"));
+  it("parses Excel serials", () => {
+    expect(parseDate(45720)).toBe("2025-03-04");
+    expect(parseDate("45720")).toBe("2025-03-04");
+  });
   it("rejects impossible dates", () => {
     expect(parseDate("2025-02-30")).toBeNull();
     expect(parseDate("31/02/2025")).toBeNull();

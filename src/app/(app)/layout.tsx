@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cookies } from "next/headers";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { Sidebar } from "@/components/shell/sidebar";
 import { TopBar } from "@/components/shell/topbar";
@@ -32,7 +33,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-dvh overflow-hidden">
-      <Sidebar groups={groups} tenantName={ctx.tenant.name} />
+      <Sidebar groups={groups} tenantName={ctx.tenant.name} initialCollapsed={(await cookies()).get("sidebar")?.value === "collapsed"} />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar user={ctx.user} roleName={ctx.roleName} groups={groups} createActions={createActions} unread={unread?.n ?? 0} />
         <main className="min-h-0 flex-1 overflow-y-auto" id="main">

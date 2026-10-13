@@ -594,6 +594,10 @@ export const importJobs = pgTable(
     fileName: text("file_name").notNull(),
     fileSize: bigint("file_size", { mode: "number" }).notNull(),
     sheetName: text("sheet_name"),
+    /** Sheets found in the workbook: [{ name, rowCount }]. */
+    sheets: jsonb("sheets").$type<{ name: string; rowCount: number }[]>().notNull().default([]),
+    /** Parsing/processing options, e.g. { dateOrder: "dmy" }. */
+    options: jsonb("options").$type<{ dateOrder?: "dmy" | "mdy"; pipelineId?: string }>().notNull().default({}),
     headers: text("headers").array().notNull().default(sql`'{}'::text[]`),
     mapping: jsonb("mapping").$type<Record<string, string>>().notNull().default({}),
     /** create | update | skip handling for rows matching an existing record. */

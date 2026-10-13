@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Exato One design tokens.
+ * Deep navy chrome, neutral work surfaces, cool-blue accent. Restrained radius,
+ * hairline borders, minimal shadow. All colours are referenced through tokens.
+ */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f1f3f6;
+  --surface-hover: #eef1f5;
+  --border: #e3e7ed;
+  --border-strong: #cfd6df;
+  --text: #0f1729;
+  --text-2: #475467;
+  --text-3: #6b7689;
+  --accent: #1f5fd6;
+  --accent-hover: #194fb4;
+  --accent-soft: #e8effc;
+  --accent-text: #ffffff;
+  --success: #0f7b4a;
+  --success-soft: #e5f4ec;
+  --warning: #a35c00;
+  --warning-soft: #fdf1df;
+  --danger: #c0352b;
+  --danger-soft: #fbe9e7;
+  --chrome: #0b1426;
+  --chrome-2: #111d34;
+  --chrome-border: #1c2a45;
+  --chrome-text: #c7d1e3;
+  --chrome-text-2: #7f8ca6;
+  --chrome-active: #1b2c4d;
+  --ring: #1f5fd6;
+  --chart-1: #1f5fd6;
+  --chart-2: #0e9384;
+  --chart-3: #b54708;
+  --chart-4: #7a5af8;
+  --chart-5: #64748b;
+}
+
+.dark {
+  --bg: #0a111f;
+  --surface: #0f1829;
+  --surface-2: #131e33;
+  --surface-hover: #17243c;
+  --border: #1f2c45;
+  --border-strong: #2a3a58;
+  --text: #e6ebf4;
+  --text-2: #a9b4c8;
+  --text-3: #7d899f;
+  --accent: #4c8dff;
+  --accent-hover: #6aa0ff;
+  --accent-soft: #15284a;
+  --accent-text: #06101f;
+  --success: #3ccb8a;
+  --success-soft: #0f2e22;
+  --warning: #f2a93b;
+  --warning-soft: #332411;
+  --danger: #ff7a6e;
+  --danger-soft: #3a1714;
+  --chrome: #070d19;
+  --chrome-2: #0c1527;
+  --chrome-border: #18243b;
+  --chrome-active: #15233e;
+  --ring: #4c8dff;
+  --chart-1: #4c8dff;
+  --chart-2: #2ec4b6;
+  --chart-3: #f2a93b;
+  --chart-4: #a48bff;
+  --chart-5: #8b98ad;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-chrome: var(--chrome);
+  --color-chrome-2: var(--chrome-2);
+  --color-chrome-border: var(--chrome-border);
+  --color-chrome-text: var(--chrome-text);
+  --color-chrome-text-2: var(--chrome-text-2);
+  --color-chrome-active: var(--chrome-active);
+  --color-ring: var(--ring);
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01", "tnum";
+  -webkit-font-smoothing: antialiased;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

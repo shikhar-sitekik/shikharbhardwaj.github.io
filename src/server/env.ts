@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { appDatabaseUrl } from "@/server/db/urls";
 
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -21,7 +22,12 @@ let cached: Env | undefined;
 
 export function env(): Env {
   if (!cached) {
-    const parsed = schema.safeParse(process.env);
+    const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    const parsed = schema.safeParse({
+      ...process.env,
+      DATABASE_URL: appDatabaseUrl(process.env),
+      APP_URL: process.env.APP_URL || (vercelUrl ? `https://${vercelUrl}` : undefined),
+    });
     if (!parsed.success) {
       const keys = parsed.error.issues.map((i) => i.path.join(".")).join(", ");
       throw new Error(`Invalid server environment configuration: ${keys}`);

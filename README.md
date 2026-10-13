@@ -76,7 +76,21 @@ CI (`.github/workflows/ci.yml`) runs all of the above against a Postgres 16 serv
 
 Never edit the database by hand.
 
-## Deployment (Vercel + Supabase)
+## Quick deploy (Vercel + Neon free tier, no terminal)
+
+1. Vercel → **Add New → Project** → import this GitHub repo (branch `claude/exato-one-crm-build-dcs1or` or `main`). Framework: Next.js (auto).
+2. In the new project: **Storage → Create Database → Neon** (free plan) → connect it to the project. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
+3. **Settings → Environment Variables** (Production + Preview):
+   - `EXATO_APP_DB_PASSWORD`: random, 24+ characters (the app's restricted database login)
+   - `ENCRYPTION_KEY`: `openssl rand -base64 32`
+   - `CRON_SECRET`: `openssl rand -base64 32`
+   - `ALLOW_SIGNUP` = `true` (set to `false` after you've created your account)
+4. **Deployments → Redeploy.** The build (`npm run vercel-build`) applies migrations and creates the `exato_app` login automatically.
+5. Open the `.vercel.app` URL, go to `/signup` and create your workspace.
+
+Notes: `APP_URL` defaults to the production domain. Preview deployments migrate the same database. Hobby plans allow only daily crons, so the cron runs daily; imports still process immediately after you confirm them.
+
+## Deployment (Vercel + Supabase) (manual)
 
 Nothing has been deployed from this repository yet. The steps:
 

@@ -6,10 +6,11 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
+import { migrationDatabaseUrl } from "../src/server/db/urls";
 
 async function main(): Promise<void> {
-  const url = process.env.DATABASE_MIGRATION_URL;
-  if (!url) throw new Error("DATABASE_MIGRATION_URL is required");
+  const url = migrationDatabaseUrl();
+  if (!url) throw new Error("DATABASE_MIGRATION_URL (or DATABASE_URL_UNPOOLED) is required");
   const client = postgres(url, { max: 1, onnotice: () => undefined });
   try {
     await migrate(drizzle(client), { migrationsFolder: "./drizzle" });

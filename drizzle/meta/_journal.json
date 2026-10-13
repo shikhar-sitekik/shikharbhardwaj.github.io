@@ -22,6 +22,20 @@
       "when": 1791912891604,
       "tag": "0002_import_options",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791913435370,
+      "tag": "0003_integrations",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791913436380,
+      "tag": "0004_integrations_rls",
+      "breakpoints": true
     }
   ]
 }

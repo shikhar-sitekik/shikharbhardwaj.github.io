@@ -691,6 +691,68 @@ export const customFieldDefinitions = pgTable(
   (t) => [uniqueIndex("cfd_tenant_entity_key_uq").on(t.tenantId, t.entity, t.key)],
 );
 
+// ─── Integrations ───────────────────────────────────────────────────────────
+
+/**
+ * Connection lifecycle (deliberately distinct states):
+ * available → configured (credentials stored) → authenticated (test passed)
+ * → synced (first sync done) → healthy/degraded (ongoing).
+ */
+export const connectionStatus = pgEnum("connection_status", [
+  "configured",
+  "authenticated",
+  "synced",
+  "healthy",
+  "degraded",
+  "disabled",
+]);
+
+export const integrationConnections = pgTable(
+  "integration_connections",
+  {
+    id: id(),
+    tenantId: tenantId(),
+    provider: text("provider").notNull(),
+    name: text("name").notNull(),
+    status: connectionStatus("status").notNull().default("configured"),
+    /** Non-secret configuration (field mapping, defaults). */
+    config: jsonb("config").$type<Record<string, unknown>>().notNull().default({}),
+    /** AES-256-GCM encrypted credential blob (see server/lib/crypto.ts). Never sent to the client. */
+    encryptedSecret: text("encrypted_secret"),
+    secretHint: text("secret_hint"),
+    lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+    lastErrorAt: timestamp("last_error_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    receivedCount: integer("received_count").notNull().default(0),
+    rejectedCount: integer("rejected_count").notNull().default(0),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("integration_connections_tenant_idx").on(t.tenantId, t.provider)],
+);
+
+export const webhookEvents = pgTable(
+  "webhook_events",
+  {
+    id: id(),
+    tenantId: tenantId(),
+    connectionId: uuid("connection_id")
+      .notNull()
+      .references(() => integrationConnections.id, { onDelete: "cascade" }),
+    externalId: text("external_id").notNull(),
+    status: text("status").notNull(),
+    error: text("error"),
+    recordId: uuid("record_id"),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("webhook_events_dedupe_uq").on(t.connectionId, t.externalId),
+    index("webhook_events_conn_time_idx").on(t.connectionId, t.receivedAt),
+  ],
+);
+
+export type IntegrationConnection = typeof integrationConnections.$inferSelect;
 export type Tenant = typeof tenants.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Role = typeof roles.$inferSelect;

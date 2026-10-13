@@ -50,3 +50,14 @@ export async function withScope<T>(scope: DbScope, fn: (tx: Tx) => Promise<T>): 
     return fn(tx);
   });
 }
+
+/** Readiness probe used by /api/health and the System health page. */
+export async function pingDatabase(): Promise<{ ok: boolean; latencyMs: number }> {
+  const started = performance.now();
+  try {
+    await db().execute(sql`select 1`);
+    return { ok: true, latencyMs: Math.round(performance.now() - started) };
+  } catch {
+    return { ok: false, latencyMs: Math.round(performance.now() - started) };
+  }
+}

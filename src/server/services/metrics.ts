@@ -316,3 +316,75 @@ export async function defaultPipelineId(ctx: TenantContext): Promise<string | nu
     return p?.id ?? null;
   });
 }
+
+export interface ForecastRow {
+  category: string;
+  count: number;
+  value: number;
+  weighted: number;
+}
+
+/** Open + closed-won deals with expected close (or close) date inside the period, by forecast category. */
+export async function forecastReport(ctx: TenantContext, period: Period) {
+  need(ctx, "report:read");
+  return withScope(ctx, async (tx) => {
+    const prob = sql`coalesce(${opportunities.probabilityOverride}, ${pipelineStages.probability})`;
+    const rows = await tx
+      .select({
+        category: opportunities.forecastCategory,
+        currency: opportunities.currency,
+        n: sql<number>`count(*)::int`,
+        total: sql<string>`sum(${opportunities.amount})::text`,
+        weighted: sql<string>`sum(${opportunities.amount} * ${prob} / 100.0)::text`,
+      })
+      .from(opportunities)
+      .innerJoin(pipelineStages, eq(pipelineStages.id, opportunities.stageId))
+      .where(
+        and(
+          isNull(opportunities.archivedAt),
+          ownerScope(ctx, opportunities.ownerId),
+          sql`${pipelineStages.category} <> 'lost'`,
+          sql`coalesce(${opportunities.closedAt}::date, ${opportunities.expectedCloseDate}) >= ${period.from.toISOString().slice(0, 10)}::date`,
+          sql`coalesce(${opportunities.closedAt}::date, ${opportunities.expectedCloseDate}) < ${period.to.toISOString().slice(0, 10)}::date`,
+        ),
+      )
+      .groupBy(opportunities.forecastCategory, opportunities.currency);
+    const map = new Map<string, ForecastRow>();
+    let unconverted = 0;
+    for (const r of rows) {
+      const t = sumToBase(ctx, [r], "total");
+      const w = sumToBase(ctx, [r], "weighted");
+      unconverted += t.unconverted;
+      const cur = map.get(r.category) ?? { category: r.category, count: 0, value: 0, weighted: 0 };
+      cur.count += r.n;
+      cur.value += t.value;
+      cur.weighted += w.value;
+      map.set(r.category, cur);
+    }
+    const order = ["closed", "commit", "best_case", "pipeline", "omitted"];
+    return { rows: order.map((c) => map.get(c) ?? { category: c, count: 0, value: 0, weighted: 0 }), unconverted };
+  });
+}
+
+/** Lost deals in the period grouped by recorded loss reason (free text, normalised to lower case). */
+export async function lossReasonReport(ctx: TenantContext, period: Period) {
+  need(ctx, "report:read");
+  return withScope(ctx, (tx) =>
+    tx
+      .select({ reason: sql<string>`lower(coalesce(nullif(trim(${opportunities.lossReason}), ''), 'not recorded'))`, n: sql<number>`count(*)::int` })
+      .from(opportunities)
+      .innerJoin(pipelineStages, eq(pipelineStages.id, opportunities.stageId))
+      .where(
+        and(
+          isNull(opportunities.archivedAt),
+          ownerScope(ctx, opportunities.ownerId),
+          eq(pipelineStages.category, "lost"),
+          gte(opportunities.closedAt, period.from),
+          lt(opportunities.closedAt, period.to),
+        ),
+      )
+      .groupBy(sql`1`)
+      .orderBy(sql`2 desc`)
+      .limit(20),
+  );
+}

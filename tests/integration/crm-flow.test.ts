@@ -227,6 +227,13 @@ describe("authorisation and tenant isolation", () => {
     // A rep setting another owner on create without lead:assign keeps themselves as owner.
     const own = await createLead(repA, { lastName: "Try reassign", ownerId: repC.userId });
     expect(own.ownerId).toBe(repA.userId);
+    // "Team" task view never leaks other teams' tasks.
+    const leadC = await createLead(repC, { lastName: "South lead" });
+    await createActivity(repC, { type: "task", subject: "South task", leadId: leadC.id, dueAt: new Date(Date.now() + 864e5).toISOString() });
+    await createActivity(repB, { type: "task", subject: "North task", leadId: lead.id, dueAt: new Date(Date.now() + 864e5).toISOString() });
+    const teamTasks = await listTasks(repA, { scope: "team" });
+    expect(teamTasks.map((t) => t.subject)).toEqual(["North task"]);
+    await expect(timelineFor(repA, { type: "lead", id: leadC.id })).rejects.toBeInstanceOf(ForbiddenError);
     // Accounts in another team's scope are not convertible targets.
     const accC = await createAccount(repC, { name: "South Account" });
     await expect(getAccount(repA, accC.id)).rejects.toBeInstanceOf(ForbiddenError);

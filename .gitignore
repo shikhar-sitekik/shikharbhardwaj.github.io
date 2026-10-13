@@ -45,3 +45,4 @@ next-env.d.ts
 !.env.test
 /test-results/
 /playwright-report/
+!.env.e2e

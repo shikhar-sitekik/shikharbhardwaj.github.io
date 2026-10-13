@@ -7,7 +7,8 @@ import { sp } from "@/server/lib/page";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { TaskList, taskHref } from "@/components/crm/task-list";
+import { TaskList } from "@/components/crm/task-list";
+import { taskHref } from "@/lib/task-href";
 import { cn } from "@/lib/cn";
 
 export const metadata = { title: "Tasks" };

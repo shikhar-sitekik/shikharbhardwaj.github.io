@@ -9,7 +9,8 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Stat } from "@/components/crm/stat";
-import { TaskList, taskHref } from "@/components/crm/task-list";
+import { TaskList } from "@/components/crm/task-list";
+import { taskHref } from "@/lib/task-href";
 import { formatDate, formatMoney, relativeTime } from "@/lib/format";
 
 export const metadata = { title: "Home" };

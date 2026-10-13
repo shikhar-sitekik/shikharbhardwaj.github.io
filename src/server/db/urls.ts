@@ -8,13 +8,29 @@
  */
 type EnvLike = Record<string, string | undefined>;
 
+/**
+ * postgres-js forwards unknown query parameters to the server as runtime
+ * settings; libpq-only options such as `channel_binding` (present in Neon URLs)
+ * would be rejected, so strip them.
+ */
+export function sanitizeUrl(url: string | undefined): string | undefined {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    u.searchParams.delete("channel_binding");
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 export function migrationDatabaseUrl(env: EnvLike = process.env): string | undefined {
-  return env.DATABASE_MIGRATION_URL || env.DATABASE_URL_UNPOOLED || (env.EXATO_APP_DB_PASSWORD ? env.DATABASE_URL : undefined);
+  return sanitizeUrl(env.DATABASE_MIGRATION_URL || env.DATABASE_URL_UNPOOLED || (env.EXATO_APP_DB_PASSWORD ? env.DATABASE_URL : undefined));
 }
 
 export function appDatabaseUrl(env: EnvLike = process.env): string | undefined {
-  if (env.APP_DATABASE_URL) return env.APP_DATABASE_URL;
-  const base = env.DATABASE_URL;
+  if (env.APP_DATABASE_URL) return sanitizeUrl(env.APP_DATABASE_URL);
+  const base = sanitizeUrl(env.DATABASE_URL);
   if (!base || !env.EXATO_APP_DB_PASSWORD) return base;
   const u = new URL(base);
   u.username = "exato_app";

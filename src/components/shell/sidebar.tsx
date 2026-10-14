@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useState } from "react";
-import { BrandMark } from "@/components/brand";
+import { BrandLogo, BrandMark } from "@/components/brand";
 import { cn } from "@/lib/cn";
 import type { NavGroup } from "@/lib/navigation";
 import { NAV_ICONS } from "./icons";
@@ -33,9 +33,8 @@ export function Sidebar({ groups, tenantName, initialCollapsed }: { groups: NavG
       )}
       aria-label="Primary"
     >
-      <div className="flex h-12 items-center gap-2 border-b border-chrome-border px-3.5">
-        <BrandMark className="size-[22px] shrink-0" />
-        {!collapsed ? <span className="truncate text-[13px] font-semibold text-white">{tenantName}</span> : null}
+      <div className={cn("flex h-14 items-center bg-white", collapsed ? "justify-center px-1" : "px-3")} title={tenantName}>
+        {collapsed ? <BrandMark size={30} /> : <BrandLogo height={34} />}
       </div>
       <nav className="flex-1 overflow-y-auto px-2 py-2.5">
         {groups.map((g) => (

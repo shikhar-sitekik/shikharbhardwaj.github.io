@@ -13,6 +13,7 @@ import { logoutAction, logoutEverywhereAction } from "@/server/actions/auth";
 import { setThemeAction } from "@/server/actions/preferences";
 import { CommandPalette, type CreateAction } from "./command-palette";
 import { NAV_ICONS } from "./icons";
+import { BrandMark, BrandLogo } from "@/components/brand";
 
 export function TopBar({
   user,
@@ -79,6 +80,7 @@ export function TopBar({
       <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation" onClick={() => setMobileOpen(true)}>
         <Menu className="size-4" />
       </Button>
+      <BrandMark size={28} className="shrink-0 md:hidden" />
       <button
         type="button"
         onClick={() => setPaletteOpen(true)}
@@ -165,7 +167,10 @@ export function TopBar({
         <D.Portal>
           <D.Overlay className="fixed inset-0 z-50 bg-[#0b1426]/45 md:hidden" />
           <D.Content className="fixed inset-y-0 left-0 z-50 w-[260px] overflow-y-auto bg-chrome p-2 text-chrome-text md:hidden" aria-describedby={undefined}>
-            <D.Title className="px-2 py-2 text-[13px] font-semibold text-white">Navigation</D.Title>
+            <D.Title className="mb-2 flex h-14 items-center rounded-md bg-white px-3">
+              <BrandLogo height={34} />
+              <span className="sr-only">Navigation</span>
+            </D.Title>
             {groups.map((g) => (
               <div key={g.label} className="mb-2">
                 {g.label ? <p className="px-2 py-1 text-[10.5px] font-semibold tracking-[0.06em] text-chrome-text-2 uppercase">{g.label}</p> : null}

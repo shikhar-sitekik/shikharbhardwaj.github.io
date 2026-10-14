@@ -31,11 +31,25 @@ test.describe.serial("lead to revenue lifecycle", () => {
     await page.fill("#company", "Globex");
     await page.fill("#jobTitle", "Head of Customer Experience");
     await page.selectOption("#source", "referral");
+    await page.fill("#phone", "+91 98765 43210");
     await page.fill("#businessProblem", "Contact-centre AHT is too high.");
-    await page.getByRole("button", { name: "Create lead" }).click();
+    await page.getByRole("button", { name: "Add lead" }).click();
     await expect(page).toHaveURL(/\/leads\/[0-9a-f-]{36}$/);
     leadUrl = page.url();
     await expect(page.getByRole("heading", { name: "Priya Shah" })).toBeVisible();
+
+    // 1b. One-tap call from the lead list logs an attempt on the timeline.
+    // Headless Chrome cannot hand tel: links to a dialer and leaves that tab stuck,
+    // so tap "Call" in a throwaway tab (real phones open the dialer).
+    const dialTab = await page.context().newPage();
+    await dialTab.goto("/leads");
+    const callLink = dialTab.locator("table").getByRole("link", { name: "Call Priya Shah" });
+    await expect(callLink).toHaveAttribute("href", "tel:+919876543210");
+    await callLink.click();
+    await dialTab.waitForTimeout(1000);
+    await dialTab.close();
+    await page.goto(leadUrl);
+    await expect(page.getByText("Call to Priya Shah")).toBeVisible();
 
     // 2. Qualify it.
     await page.getByRole("link", { name: "Edit" }).click();
@@ -88,7 +102,7 @@ test.describe.serial("lead to revenue lifecycle", () => {
 
     // 9. Account 360 shows the deal and contact.
     await page.goto("/accounts");
-    await page.getByRole("link", { name: "Globex" }).click();
+    await page.getByRole("link", { name: "Globex" }).first().click();
     await expect(page.getByRole("cell", { name: "Globex – CX transformation" })).toBeVisible();
 
     // 10. Global search finds the account.
@@ -142,7 +156,7 @@ test.describe.serial("lead to revenue lifecycle", () => {
     await expect(page.getByText("Result")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("link", { name: /Download error/ })).toBeVisible();
     await page.goto("/leads?q=lopez");
-    await expect(page.getByRole("link", { name: "Ana Lopez" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ana Lopez", exact: true })).toBeVisible();
   });
 
   test("mobile layout keeps core actions reachable", async ({ browser }) => {
@@ -153,6 +167,11 @@ test.describe.serial("lead to revenue lifecycle", () => {
     await page.fill("#password", PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL("/");
+    // Lead cards show one-tap actions on phones.
+    await page.goto("/leads?q=lopez");
+    await expect(page.getByRole("link", { name: "Email Ana Lopez" })).toHaveAttribute("href", "mailto:ana@acme.example");
+    await expect(page.getByRole("button", { name: "No phone number on file" }).first()).toBeDisabled();
+    await page.goto("/");
     await page.getByRole("button", { name: "Open navigation" }).click();
     await page.getByRole("link", { name: "Tasks" }).click();
     await expect(page).toHaveURL("/tasks");

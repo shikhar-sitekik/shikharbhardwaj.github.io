@@ -42,7 +42,7 @@ export default async function ImportPage({ params }: { params: Promise<{ id: str
       <PageHeader
         title={job.fileName}
         description={`${job.totalRows} rows · ${entity}${job.sheetName && job.sheetName !== "CSV" ? ` · sheet “${job.sheetName}”` : ""} · uploaded ${formatDate(job.createdAt, { withTime: true, timeZone: ctx.tenant.settings.timezone })}`}
-        crumbs={[{ label: "Import & export", href: "/imports" }, { label: job.fileName }]}
+        crumbs={[{ label: "Upload Excel", href: "/imports" }, { label: job.fileName }]}
         meta={<Badge tone={STATUS_TONE[job.status]}>{job.status.replace("_", " ")}</Badge>}
         actions={
           job.status === "completed" ? (

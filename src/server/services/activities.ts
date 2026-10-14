@@ -83,8 +83,9 @@ export async function createActivity(ctx: TenantContext, raw: unknown): Promise<
       })
       .returning();
     if (!a) throw new Error("Failed to create activity");
-    // Calls, emails and meetings count as contact touches.
-    if (input.type === "call" || input.type === "email" || input.type === "meeting") {
+    // Calls, emails and meetings count as contact touches; a tap on "Call"/"Email"
+    // in the CRM is only an attempt until the user logs an outcome.
+    if ((input.type === "call" || input.type === "email" || input.type === "meeting") && input.outcome !== "attempted") {
       const at = occurredAt ?? new Date();
       if (refs.leadId) await tx.update(leads).set({ lastContactedAt: at }).where(and(eq(leads.id, refs.leadId), or(isNull(leads.lastContactedAt), lt(leads.lastContactedAt, at))));
       if (refs.contactId)

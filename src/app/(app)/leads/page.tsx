@@ -15,6 +15,7 @@ import { FilterBar } from "@/components/crm/filter-bar";
 import { Pagination } from "@/components/crm/pagination";
 import { BulkForm, SelectAll, type BulkOp } from "@/components/crm/bulk-table";
 import { ScorePill } from "@/components/crm/score";
+import { ContactActions } from "@/components/crm/contact-actions";
 import { LEAD_SOURCES } from "@/lib/crm-options";
 import { personName, relativeTime } from "@/lib/format";
 
@@ -55,12 +56,12 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
     <div className="flex h-full flex-col">
       <PageHeader
         title="Leads"
-        description="Prospects not yet converted into accounts, contacts and opportunities."
+        description="People you're trying to win. Tap a lead to see everything about them."
         actions={
           <>
             {ctx.permissions.has("export:run") ? (
               <Button asChild variant="ghost">
-                <a href={`/api/export/leads?${exportParams.toString()}`}>
+                <a href={`/api/export/leads?${exportParams.toString()}`} className="hidden sm:inline-flex">
                   <Download /> Export
                 </a>
               </Button>
@@ -68,32 +69,33 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
             {ctx.permissions.has("import:run") ? (
               <Button asChild variant="secondary">
                 <Link href="/imports/new?entity=leads">
-                  <Upload /> Import
+                  <Upload /> <span className="hidden sm:inline">Upload Excel</span>
                 </Link>
               </Button>
             ) : null}
             {ctx.permissions.has("lead:write") ? (
               <Button asChild variant="primary">
                 <Link href="/leads/new">
-                  <Plus /> New lead
+                  <Plus /> Add lead
                 </Link>
               </Button>
             ) : null}
           </>
         }
       />
-      <div className="m-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface md:m-6">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-border bg-surface md:m-6 md:rounded-lg md:border">
         <FilterBar
-          searchPlaceholder="Name, company or email"
+          searchPlaceholder="Search name, company or email"
           filters={[
             { key: "status", label: "Any status", options: statuses.map((s) => ({ value: s.id, label: s.label })) },
-            { key: "owner", label: "Any owner", options: [{ value: "me", label: "Me" }, { value: "unassigned", label: "Unassigned" }, ...owners.map((o) => ({ value: o.id, label: o.name }))] },
-            { key: "source", label: "Any source", options: LEAD_SOURCES.map((s) => ({ value: s, label: s.replace("_", " ") })) },
-            { key: "band", label: "Any score", options: [{ value: "hot", label: "Hot" }, { value: "warm", label: "Warm" }, { value: "cold", label: "Cold" }] },
-            { key: "stale", label: "Follow-up", options: [{ value: "1", label: "Needs follow-up" }] },
+            { key: "owner", label: "Anyone", options: [{ value: "me", label: "Mine" }, { value: "unassigned", label: "Unassigned" }, ...owners.map((o) => ({ value: o.id, label: o.name }))] },
+            { key: "source", label: "Any source", secondary: true, options: LEAD_SOURCES.map((s) => ({ value: s, label: s.replace("_", " ") })) },
+            { key: "band", label: "Any score", secondary: true, options: [{ value: "hot", label: "Hot" }, { value: "warm", label: "Warm" }, { value: "cold", label: "Cold" }] },
+            { key: "stale", label: "Follow-up", secondary: true, options: [{ value: "1", label: "Needs follow-up" }] },
             {
               key: "sort",
               label: "Newest first",
+              secondary: true,
               options: [
                 { value: "score_desc", label: "Highest score" },
                 { value: "created_asc", label: "Oldest first" },
@@ -107,66 +109,98 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
           <EmptyState
             icon={Inbox}
             title={filters.q || filters.statusId || filters.ownerId || filters.source ? "No leads match these filters" : "No leads yet"}
-            description="Create a lead manually, import a spreadsheet, or connect a website form."
+            description="Add a lead, or upload an Excel sheet of your prospects."
             action={
               ctx.permissions.has("lead:write") ? (
-                <Button asChild variant="primary">
-                  <Link href="/leads/new">New lead</Link>
-                </Button>
+                <div className="flex gap-2">
+                  <Button asChild variant="primary">
+                    <Link href="/leads/new">Add lead</Link>
+                  </Button>
+                  {ctx.permissions.has("import:run") ? (
+                    <Button asChild>
+                      <Link href="/imports/new?entity=leads">Upload Excel</Link>
+                    </Button>
+                  ) : null}
+                </div>
               ) : null
             }
           />
         ) : (
           <div className="min-h-0 flex-1 overflow-auto">
-            <BulkForm action={bulkLeadAction} ops={ops} formId="lead-bulk">
-              <Table>
-                <THead>
-                  <tr>
-                    {ops.length > 0 ? (
-                      <TH className="w-8">
-                        <SelectAll formId="lead-bulk" />
-                      </TH>
-                    ) : null}
-                    <TH>Name</TH>
-                    <TH>Company</TH>
-                    <TH>Status</TH>
-                    <TH className="text-right">Score</TH>
-                    <TH>Source</TH>
-                    <TH>Owner</TH>
-                    <TH>Last contacted</TH>
-                    <TH>Created</TH>
-                  </tr>
-                </THead>
-                <TBody>
-                  {data.rows.map((l) => (
-                    <TR key={l.id}>
+            {/* Phone layout: one card per lead with one-tap actions. */}
+            <ul className="divide-y divide-border md:hidden">
+              {data.rows.map((l) => {
+                const name = personName(l.firstName, l.lastName);
+                return (
+                  <li key={l.id} className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <Link href={`/leads/${l.id}`} className="min-w-0 flex-1">
+                        <p className="truncate text-[14px] font-medium">{name}</p>
+                        <p className="truncate text-[12.5px] text-text-3">{[l.jobTitle, l.company].filter(Boolean).join(" · ") || l.email || "—"}</p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                          <Badge tone={STATUS_TONE[l.statusCategory as keyof typeof STATUS_TONE] ?? "neutral"}>{l.statusLabel}</Badge>
+                          <ScorePill score={l.score} thresholds={thresholds} />
+                          <span className="text-[11.5px] text-text-3">{l.ownerName ?? "Unassigned"}</span>
+                        </div>
+                      </Link>
+                      <ContactActions target={{ name, email: l.email, phone: l.phone, doNotContact: l.doNotContact, leadId: l.id }} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="hidden md:block">
+              <BulkForm action={bulkLeadAction} ops={ops} formId="lead-bulk">
+                <Table>
+                  <THead>
+                    <tr>
                       {ops.length > 0 ? (
-                        <TD>
-                          <input type="checkbox" name="ids" value={l.id} aria-label={`Select ${personName(l.firstName, l.lastName)}`} className="size-3.5 accent-[var(--accent)]" />
-                        </TD>
+                        <TH className="w-8">
+                          <SelectAll formId="lead-bulk" />
+                        </TH>
                       ) : null}
-                      <TD>
-                        <Link href={`/leads/${l.id}`} className="font-medium text-text hover:text-accent">
-                          {personName(l.firstName, l.lastName)}
-                        </Link>
-                        <p className="max-w-[240px] truncate text-[12px] text-text-3">{l.jobTitle ?? l.email ?? ""}</p>
-                      </TD>
-                      <TD className="max-w-[200px] truncate">{l.company ?? "—"}</TD>
-                      <TD>
-                        <Badge tone={STATUS_TONE[l.statusCategory as keyof typeof STATUS_TONE] ?? "neutral"}>{l.statusLabel}</Badge>
-                      </TD>
-                      <TD className="text-right">
-                        <ScorePill score={l.score} thresholds={thresholds} />
-                      </TD>
-                      <TD className="text-text-2 capitalize">{l.source?.replace("_", " ") ?? "—"}</TD>
-                      <TD className="text-text-2">{l.ownerName ?? <span className="text-text-3">Unassigned</span>}</TD>
-                      <TD className="text-text-3">{l.lastContactedAt ? relativeTime(l.lastContactedAt) : "Never"}</TD>
-                      <TD className="text-text-3">{relativeTime(l.createdAt)}</TD>
-                    </TR>
-                  ))}
-                </TBody>
-              </Table>
-            </BulkForm>
+                      <TH>Name</TH>
+                      <TH>Status</TH>
+                      <TH className="text-right">Score</TH>
+                      <TH>Owner</TH>
+                      <TH>Last contact</TH>
+                      <TH className="w-[120px]">Reach out</TH>
+                    </tr>
+                  </THead>
+                  <TBody>
+                    {data.rows.map((l) => {
+                      const name = personName(l.firstName, l.lastName);
+                      return (
+                        <TR key={l.id}>
+                          {ops.length > 0 ? (
+                            <TD>
+                              <input type="checkbox" name="ids" value={l.id} aria-label={`Select ${name}`} className="size-3.5 accent-[var(--accent)]" />
+                            </TD>
+                          ) : null}
+                          <TD>
+                            <Link href={`/leads/${l.id}`} className="font-medium text-text hover:text-accent">
+                              {name}
+                            </Link>
+                            <p className="max-w-[300px] truncate text-[12px] text-text-3">{[l.jobTitle, l.company].filter(Boolean).join(" · ") || l.email || ""}</p>
+                          </TD>
+                          <TD>
+                            <Badge tone={STATUS_TONE[l.statusCategory as keyof typeof STATUS_TONE] ?? "neutral"}>{l.statusLabel}</Badge>
+                          </TD>
+                          <TD className="text-right">
+                            <ScorePill score={l.score} thresholds={thresholds} />
+                          </TD>
+                          <TD className="text-text-2">{l.ownerName ?? <span className="text-text-3">Unassigned</span>}</TD>
+                          <TD className="text-text-3">{l.lastContactedAt ? relativeTime(l.lastContactedAt) : "Never"}</TD>
+                          <TD>
+                            <ContactActions target={{ name, email: l.email, phone: l.phone, doNotContact: l.doNotContact, leadId: l.id }} />
+                          </TD>
+                        </TR>
+                      );
+                    })}
+                  </TBody>
+                </Table>
+              </BulkForm>
+            </div>
           </div>
         )}
         <Pagination

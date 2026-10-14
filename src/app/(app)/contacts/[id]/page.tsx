@@ -18,6 +18,7 @@ import { Timeline } from "@/components/crm/timeline";
 import { ActivityComposer } from "@/components/crm/activity-composer";
 import { RecordHistory } from "@/components/crm/history";
 import { ConfirmAction } from "@/components/crm/confirm-action";
+import { ContactActions } from "@/components/crm/contact-actions";
 import { BUYING_ROLE_LABELS } from "@/lib/crm-options";
 import { formatDate, formatMoney, personName, relativeTime } from "@/lib/format";
 
@@ -57,6 +58,7 @@ export default async function ContactPage({
         }
         actions={
           <>
+            <ContactActions variant="full" target={{ name, email: contact.email, phone: contact.phone, doNotContact: contact.doNotContact, contactId: id, accountId: account?.id }} />
             {ctx.permissions.has("contact:delete") ? (
               <ConfirmAction action={archiveContactAction.bind(null, id)} label={<><Trash2 /> Archive</>} title="Archive contact?" description="The contact will be hidden from lists and search. History is retained." confirmLabel="Archive" />
             ) : null}
@@ -101,9 +103,9 @@ export default async function ContactPage({
             />
           </Card>
           <Card>
-            <CardHeader title="Opportunities" />
+            <CardHeader title="Deals" />
             {opportunities.length === 0 ? (
-              <EmptyState title="Not on any opportunity" />
+              <EmptyState title="Not on any deal" />
             ) : (
               <ul className="divide-y divide-border">
                 {opportunities.map((o) => (

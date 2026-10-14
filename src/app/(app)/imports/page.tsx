@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDate } from "@/lib/format";
 
-export const metadata = { title: "Import & export" };
+export const metadata = { title: "Upload Excel & export" };
 
 const EXPORTS = [
   { entity: "leads", label: "Leads", permission: "lead:read" },
@@ -27,13 +27,13 @@ export default async function ImportsPage() {
   return (
     <div>
       <PageHeader
-        title="Import & export"
+        title="Upload Excel & export"
         description="Bring data in from spreadsheets and other CRMs; export your authorised views."
         actions={
           ctx.permissions.has("import:run") ? (
             <Button asChild variant="primary">
               <Link href="/imports/new">
-                <Upload /> New import
+                <Upload /> Upload Excel sheet
               </Link>
             </Button>
           ) : null

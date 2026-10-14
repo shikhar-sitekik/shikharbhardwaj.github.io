@@ -16,7 +16,7 @@ import { PipelineBoard } from "@/components/crm/pipeline-board";
 import { cn } from "@/lib/cn";
 import { formatDate, formatMoney, relativeTime } from "@/lib/format";
 
-export const metadata = { title: "Opportunities" };
+export const metadata = { title: "Deals" };
 
 export default async function OpportunitiesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const ctx = await requireContext();
@@ -41,7 +41,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
 
   const header = (
     <PageHeader
-      title="Opportunities"
+      title="Deals"
       description={pipeline ? pipeline.description ?? undefined : undefined}
       actions={
         <>
@@ -55,7 +55,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
           {ctx.permissions.has("opportunity:write") ? (
             <Button asChild variant="primary">
               <Link href={`/opportunities/new${pipeline ? `?pipelineId=${pipeline.id}` : ""}`}>
-                <Plus /> New opportunity
+                <Plus /> Add deal
               </Link>
             </Button>
           ) : null}
@@ -146,13 +146,13 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
       <div className="m-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface md:m-6">
         {filterBar}
         {data.total === 0 ? (
-          <EmptyState icon={KanbanSquare} title="No opportunities match" />
+          <EmptyState icon={KanbanSquare} title="No deals match" />
         ) : (
           <div className="min-h-0 flex-1 overflow-auto">
             <Table>
               <THead>
                 <tr>
-                  <TH>Opportunity</TH>
+                  <TH>Deal</TH>
                   <TH>Stage</TH>
                   <TH className="text-right">Amount</TH>
                   <TH className="text-right">Prob.</TH>

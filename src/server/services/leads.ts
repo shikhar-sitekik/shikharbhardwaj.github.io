@@ -44,6 +44,8 @@ export type LeadRow = Pick<
   | "firstName"
   | "lastName"
   | "email"
+  | "phone"
+  | "doNotContact"
   | "company"
   | "jobTitle"
   | "source"
@@ -104,6 +106,8 @@ export async function listLeads(ctx: TenantContext, f: LeadFilters = {}): Promis
         firstName: leads.firstName,
         lastName: leads.lastName,
         email: leads.email,
+        phone: leads.phone,
+        doNotContact: leads.doNotContact,
         company: leads.company,
         jobTitle: leads.jobTitle,
         source: leads.source,

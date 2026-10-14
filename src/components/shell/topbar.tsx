@@ -86,15 +86,15 @@ export function TopBar({
         aria-label="Search (Ctrl+K)"
       >
         <Search className="size-3.5" />
-        <span className="flex-1 truncate">Search leads, accounts, contacts, deals…</span>
+        <span className="flex-1 truncate">Search…</span>
         <kbd className="hidden rounded border border-border bg-surface px-1.5 text-[10.5px] sm:inline">⌘K</kbd>
       </button>
       <div className="ml-auto flex items-center gap-1.5">
         {createActions.length > 0 ? (
           <DropdownMenu>
             <DropdownTrigger asChild>
-              <Button variant="primary" size="md" aria-label="Create">
-                <Plus /> <span className="hidden sm:inline">Create</span>
+              <Button variant="primary" size="md" aria-label="Add new">
+                <Plus /> <span className="hidden sm:inline">Add</span>
               </Button>
             </DropdownTrigger>
             <DropdownContent>
@@ -168,7 +168,7 @@ export function TopBar({
             <D.Title className="px-2 py-2 text-[13px] font-semibold text-white">Navigation</D.Title>
             {groups.map((g) => (
               <div key={g.label} className="mb-2">
-                <p className="px-2 py-1 text-[10.5px] font-semibold tracking-[0.06em] text-chrome-text-2 uppercase">{g.label}</p>
+                {g.label ? <p className="px-2 py-1 text-[10.5px] font-semibold tracking-[0.06em] text-chrome-text-2 uppercase">{g.label}</p> : null}
                 {g.items.map((i) => {
                   const Icon = NAV_ICONS[i.icon] ?? Search;
                   return (
@@ -176,7 +176,7 @@ export function TopBar({
                       key={i.key}
                       href={i.href}
                       onClick={() => setMobileOpen(false)}
-                      className="flex h-9 items-center gap-2.5 rounded-md px-2 text-[13.5px] hover:bg-chrome-2 hover:text-white"
+                      className="flex h-11 items-center gap-3 rounded-md px-2 text-[15px] hover:bg-chrome-2 hover:text-white"
                     >
                       <Icon className="size-4" /> {i.label}
                       {i.status === "planned" ? <span className="ml-auto text-[10px] text-chrome-text-2 uppercase">Soon</span> : null}

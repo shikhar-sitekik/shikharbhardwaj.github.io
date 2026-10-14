@@ -40,11 +40,13 @@ export function Sidebar({ groups, tenantName, initialCollapsed }: { groups: NavG
       <nav className="flex-1 overflow-y-auto px-2 py-2.5">
         {groups.map((g) => (
           <div key={g.label} className="mb-3">
-            {!collapsed ? (
-              <p className="px-2 pb-1 text-[10.5px] font-semibold tracking-[0.06em] text-chrome-text-2 uppercase">{g.label}</p>
-            ) : (
-              <div className="mx-2 mb-1.5 h-px bg-chrome-border" />
-            )}
+            {g.label ? (
+              !collapsed ? (
+                <p className="px-2 pb-1 text-[10.5px] font-semibold tracking-[0.06em] text-chrome-text-2 uppercase">{g.label}</p>
+              ) : (
+                <div className="mx-2 mb-1.5 h-px bg-chrome-border" />
+              )
+            ) : null}
             <ul className="flex flex-col gap-px">
               {g.items.map((item) => {
                 const Icon = NAV_ICONS[item.icon] ?? NAV_ICONS.home!;
@@ -56,7 +58,7 @@ export function Sidebar({ groups, tenantName, initialCollapsed }: { groups: NavG
                       title={collapsed ? item.label : undefined}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "flex h-[30px] items-center gap-2.5 rounded-md px-2 text-[13px] transition-colors",
+                        "flex h-[34px] items-center gap-2.5 rounded-md px-2 text-[13.5px] transition-colors",
                         active ? "bg-chrome-active text-white" : "hover:bg-chrome-2 hover:text-white",
                         item.status === "planned" && !active && "text-chrome-text-2",
                       )}

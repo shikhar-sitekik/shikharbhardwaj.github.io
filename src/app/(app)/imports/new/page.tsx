@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardBody } from "@/components/ui/card";
 import { UploadForm } from "@/components/crm/import-forms";
 
-export const metadata = { title: "New import" };
+export const metadata = { title: "Upload Excel sheet" };
 
 const ALL = [
   { value: "leads", label: "Leads", permission: "lead:write" },
@@ -22,7 +22,7 @@ export default async function NewImportPage({ searchParams }: { searchParams: Pr
   const wanted = sp(await searchParams, "entity");
   return (
     <div>
-      <PageHeader title="Import data" description="Upload, map columns, validate every row, then import in the background." crumbs={[{ label: "Import & export", href: "/imports" }, { label: "New import" }]} />
+      <PageHeader title="Upload Excel sheet" description="Upload, map columns, validate every row, then import in the background." crumbs={[{ label: "Upload Excel", href: "/imports" }, { label: "New import" }]} />
       <div className="mx-auto grid max-w-2xl gap-4 p-4 md:p-6">
         <Card>
           <CardBody>

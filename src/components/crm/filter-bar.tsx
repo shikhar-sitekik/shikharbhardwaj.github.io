@@ -10,6 +10,8 @@ export interface FilterDef {
   key: string;
   label: string;
   options: { value: string; label: string }[];
+  /** Hidden behind "More filters" until opened (or while it has a value). */
+  secondary?: boolean;
 }
 
 /** URL-driven filters: every view is shareable and back-button friendly. */
@@ -29,6 +31,9 @@ export function FilterBar({
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [pending, start] = useTransition();
+  const [showMore, setShowMore] = useState(false);
+  const hasSecondary = filters.some((f) => f.secondary);
+  const visible = filters.filter((f) => !f.secondary || showMore || params.get(f.key));
 
   const push = (next: URLSearchParams) => {
     next.delete("page");
@@ -54,7 +59,7 @@ export function FilterBar({
   return (
     <div className={cn("flex flex-wrap items-center gap-2 border-b border-border px-4 py-2", pending && "opacity-70")}>
       {search ? (
-      <div className="relative w-full max-w-[260px]">
+      <div className="relative w-full sm:max-w-[280px]">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-text-3" />
         <input
           value={q}
@@ -65,7 +70,7 @@ export function FilterBar({
         />
       </div>
       ) : null}
-      {filters.map((f) => (
+      {visible.map((f) => (
         <Select
           key={f.key}
           aria-label={f.label}
@@ -86,6 +91,15 @@ export function FilterBar({
           ))}
         </Select>
       ))}
+      {hasSecondary && !showMore ? (
+        <button
+          type="button"
+          onClick={() => setShowMore(true)}
+          className="rounded px-1.5 py-1 text-[12px] font-medium text-accent hover:bg-accent-soft"
+        >
+          More filters
+        </button>
+      ) : null}
       {active ? (
         <button
           type="button"

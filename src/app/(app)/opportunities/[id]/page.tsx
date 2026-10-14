@@ -28,7 +28,7 @@ import { BUYING_ROLE_LABELS } from "@/lib/crm-options";
 import { formatDate, formatMoney, personName } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
-export const metadata = { title: "Opportunity" };
+export const metadata = { title: "Deal" };
 
 export default async function OpportunityPage({
   params,
@@ -89,7 +89,7 @@ export default async function OpportunityPage({
             {d.pipeline?.name}
           </>
         }
-        crumbs={[{ label: "Opportunities", href: "/opportunities" }, { label: o.name }]}
+        crumbs={[{ label: "Deals", href: "/opportunities" }, { label: o.name }]}
         meta={
           <>
             <Badge tone={stage?.category === "won" ? "success" : stage?.category === "lost" ? "danger" : "accent"}>{stage?.name}</Badge>

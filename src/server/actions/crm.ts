@@ -252,3 +252,36 @@ export async function toggleTaskAction(id: string, completed: boolean): Promise<
   revalidatePath("/", "layout");
   return res;
 }
+
+const outreachSchema = z.object({
+  kind: z.enum(["call", "email", "whatsapp"]),
+  leadId: uuid.optional(),
+  contactId: uuid.optional(),
+  accountId: uuid.optional(),
+  name: z.string().max(200),
+});
+
+/**
+ * Records that a user started a call / email / WhatsApp from the CRM. Logged as an
+ * "attempted" activity so the timeline shows it without counting as a completed contact.
+ */
+export async function logOutreachAction(input: z.input<typeof outreachSchema>): Promise<ActionState> {
+  const ctx = await requireContext();
+  const res = await runAction(async () => {
+    const p = outreachSchema.parse(input);
+    if (!p.leadId && !p.contactId) throw new ValidationError("Nothing to log against.");
+    const subject = p.kind === "call" ? `Call to ${p.name}` : p.kind === "email" ? `Email to ${p.name}` : `WhatsApp to ${p.name}`;
+    await createActivity(ctx, {
+      type: p.kind === "call" ? "call" : p.kind === "email" ? "email" : "note",
+      subject,
+      body: "Started from the CRM. Open the record to add notes or the outcome.",
+      outcome: "attempted",
+      leadId: p.leadId,
+      contactId: p.contactId,
+      accountId: p.accountId,
+    });
+  });
+  if (input.leadId) revalidatePath(`/leads/${input.leadId}`);
+  if (input.contactId) revalidatePath(`/contacts/${input.contactId}`);
+  return res;
+}

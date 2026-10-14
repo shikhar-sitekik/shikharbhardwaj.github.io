@@ -24,7 +24,7 @@ import { ConfirmAction } from "@/components/crm/confirm-action";
 import { ACCOUNT_STATUSES, BUYING_ROLE_LABELS } from "@/lib/crm-options";
 import { formatDate, formatMoney, personName, relativeTime } from "@/lib/format";
 
-export const metadata = { title: "Account" };
+export const metadata = { title: "Company" };
 
 const COMMITTEE_ROLES = ["decision_maker", "economic_buyer", "champion", "influencer", "evaluator", "procurement", "blocker"] as const;
 
@@ -87,7 +87,7 @@ export default async function AccountPage({
           </span>
         }
         description={[account.industry, account.country, account.domain].filter(Boolean).join(" · ") || undefined}
-        crumbs={[{ label: "Accounts", href: "/accounts" }, { label: account.name }]}
+        crumbs={[{ label: "Companies", href: "/accounts" }, { label: account.name }]}
         meta={
           <>
             <Badge tone={account.status === "customer" ? "success" : "neutral"}>{ACCOUNT_STATUSES.find((s) => s.value === account.status)?.label}</Badge>
@@ -131,7 +131,7 @@ export default async function AccountPage({
             {ctx.permissions.has("opportunity:write") ? (
               <Button asChild variant="primary">
                 <Link href={`/opportunities/new?accountId=${id}`}>
-                  <Plus /> New opportunity
+                  <Plus /> Add deal
                 </Link>
               </Button>
             ) : null}
@@ -157,7 +157,7 @@ export default async function AccountPage({
               basePath={`/accounts/${id}`}
               active={tab}
               tabs={[
-                { key: "overview", label: "Opportunities", count: data.opportunities.length },
+                { key: "overview", label: "Deals", count: data.opportunities.length },
                 { key: "contacts", label: "Contacts & buying committee", count: data.contacts.length },
                 { key: "activity", label: "Activity", count: timeline.length },
                 { key: "history", label: "History" },
@@ -206,12 +206,12 @@ export default async function AccountPage({
             ) : tab === "history" ? (
               <RecordHistory entries={history} timeZone={tz} />
             ) : data.opportunities.length === 0 ? (
-              <EmptyState title="No opportunities" description="Open an opportunity to start tracking a deal with this account." />
+              <EmptyState title="No deals yet" description="Add a deal to start tracking what you could sell to this company." />
             ) : (
               <Table>
                 <THead>
                   <tr>
-                    <TH>Opportunity</TH>
+                    <TH>Deal</TH>
                     <TH>Stage</TH>
                     <TH className="text-right">Amount</TH>
                     <TH>Close date</TH>

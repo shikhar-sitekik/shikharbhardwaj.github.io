@@ -14,7 +14,7 @@ import { FilterBar } from "@/components/crm/filter-bar";
 import { Pagination } from "@/components/crm/pagination";
 import { ACCOUNT_STATUSES } from "@/lib/crm-options";
 
-export const metadata = { title: "Accounts" };
+export const metadata = { title: "Companies" };
 
 export default async function AccountsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const ctx = await requireContext();
@@ -37,8 +37,8 @@ export default async function AccountsPage({ searchParams }: { searchParams: Pro
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        title="Accounts"
-        description="Organisations you sell to, partner with or serve."
+        title="Companies"
+        description="The organisations you sell to and work with."
         actions={
           <>
             {ctx.permissions.has("export:run") ? (
@@ -58,7 +58,7 @@ export default async function AccountsPage({ searchParams }: { searchParams: Pro
             {ctx.permissions.has("account:write") ? (
               <Button asChild variant="primary">
                 <Link href="/accounts/new">
-                  <Plus /> New account
+                  <Plus /> Add company
                 </Link>
               </Button>
             ) : null}
@@ -76,13 +76,13 @@ export default async function AccountsPage({ searchParams }: { searchParams: Pro
           ]}
         />
         {data.total === 0 ? (
-          <EmptyState icon={Building2} title="No accounts found" description="Accounts are created when you convert leads, import data, or add them directly." />
+          <EmptyState icon={Building2} title="No companies yet" description="Companies are created when you convert a lead, upload an Excel sheet, or add one." />
         ) : (
           <div className="min-h-0 flex-1 overflow-auto">
             <Table>
               <THead>
                 <tr>
-                  <TH>Account</TH>
+                  <TH>Company</TH>
                   <TH>Status</TH>
                   <TH>Industry</TH>
                   <TH>Country</TH>

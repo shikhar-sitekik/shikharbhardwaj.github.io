@@ -7,7 +7,7 @@ import { loadOr404 } from "@/server/lib/page";
 import { PageHeader } from "@/components/ui/page-header";
 import { OpportunityForm } from "@/components/crm/opportunity-form";
 
-export const metadata = { title: "Edit opportunity" };
+export const metadata = { title: "Edit deal" };
 
 export default async function EditOpportunityPage({ params }: { params: Promise<{ id: string }> }) {
   const ctx = await requireContext();
@@ -19,7 +19,7 @@ export default async function EditOpportunityPage({ params }: { params: Promise<
     <div>
       <PageHeader
         title={`Edit ${opportunity.name}`}
-        crumbs={[{ label: "Opportunities", href: "/opportunities" }, { label: opportunity.name, href: `/opportunities/${id}` }, { label: "Edit" }]}
+        crumbs={[{ label: "Deals", href: "/opportunities" }, { label: opportunity.name, href: `/opportunities/${id}` }, { label: "Edit" }]}
       />
       <div className="mx-auto max-w-3xl p-4 md:p-6">
         <OpportunityForm opportunityId={id} values={opportunity} accounts={accounts} contacts={contacts} owners={owners} pipelines={pipelines} currencies={CURRENCIES} />

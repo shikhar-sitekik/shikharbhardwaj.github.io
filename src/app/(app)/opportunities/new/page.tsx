@@ -7,7 +7,7 @@ import { isUuid, sp } from "@/server/lib/page";
 import { PageHeader } from "@/components/ui/page-header";
 import { OpportunityForm } from "@/components/crm/opportunity-form";
 
-export const metadata = { title: "New opportunity" };
+export const metadata = { title: "New deal" };
 
 export default async function NewOpportunityPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const ctx = await requireContext();
@@ -18,7 +18,7 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
   const pipelineId = sp(params, "pipelineId");
   return (
     <div>
-      <PageHeader title="New opportunity" crumbs={[{ label: "Opportunities", href: "/opportunities" }, { label: "New" }]} />
+      <PageHeader title="New deal" crumbs={[{ label: "Deals", href: "/opportunities" }, { label: "New" }]} />
       <div className="mx-auto max-w-3xl p-4 md:p-6">
         <OpportunityForm
           opportunityId={null}

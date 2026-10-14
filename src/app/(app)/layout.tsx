@@ -13,15 +13,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const ctx = await requireContext();
   const groups: NavGroup[] = NAV.map((g) => ({
     ...g,
-    items: g.items.filter((i) => !i.permission || ctx.permissions.has(i.permission)),
+    items: g.items.filter((i) => i.status === "available" && (!i.permission || ctx.permissions.has(i.permission))),
   })).filter((g) => g.items.length > 0);
 
   const createActions: CreateAction[] = [
-    ctx.permissions.has("lead:write") && { label: "New lead", href: "/leads/new" },
-    ctx.permissions.has("account:write") && { label: "New account", href: "/accounts/new" },
-    ctx.permissions.has("contact:write") && { label: "New contact", href: "/contacts/new" },
-    ctx.permissions.has("opportunity:write") && { label: "New opportunity", href: "/opportunities/new" },
-    ctx.permissions.has("import:run") && { label: "Import data", href: "/imports/new" },
+    ctx.permissions.has("lead:write") && { label: "Lead", href: "/leads/new" },
+    ctx.permissions.has("contact:write") && { label: "Contact", href: "/contacts/new" },
+    ctx.permissions.has("account:write") && { label: "Company", href: "/accounts/new" },
+    ctx.permissions.has("opportunity:write") && { label: "Deal", href: "/opportunities/new" },
+    ctx.permissions.has("import:run") && { label: "Upload Excel sheet", href: "/imports/new" },
   ].filter((a): a is CreateAction => Boolean(a));
 
   const [unread] = await withScope(ctx, (tx) =>

@@ -171,6 +171,17 @@ describe("lead → opportunity → won lifecycle", () => {
     await expect(createActivity(admin, { type: "task", subject: "No due", leadId: lead.id })).rejects.toThrow(/due date/);
   });
 
+  it("outreach attempts are logged without counting as a completed contact", async () => {
+    const { admin } = await makeTenant("Outreach");
+    const lead = await createLead(admin, { lastName: "Dial", phone: "+91 98765 43210" });
+    await createActivity(admin, { type: "call", subject: "Call to Dial", outcome: "attempted", leadId: lead.id });
+    expect((await getLead(admin, lead.id)).lead.lastContactedAt).toBeNull();
+    const tl = await timelineFor(admin, { type: "lead", id: lead.id });
+    expect(tl[0]).toMatchObject({ type: "call", outcome: "attempted" });
+    await createActivity(admin, { type: "call", subject: "Spoke to Dial", outcome: "connected", leadId: lead.id });
+    expect((await getLead(admin, lead.id)).lead.lastContactedAt).not.toBeNull();
+  });
+
   it("round-robin assignment rotates owners", async () => {
     const { admin } = await makeTenant("RR");
     const r1 = await makeMember(admin, "sales_rep");

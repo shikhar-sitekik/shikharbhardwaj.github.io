@@ -24,6 +24,7 @@ import { RecordHistory } from "@/components/crm/history";
 import { ScorePill } from "@/components/crm/score";
 import { ConvertLeadDialog } from "@/components/crm/convert-lead-dialog";
 import { MergeLeadDialog } from "@/components/crm/merge-lead-dialog";
+import { ContactActions } from "@/components/crm/contact-actions";
 import { formatDate, formatMoney, personName, relativeTime } from "@/lib/format";
 
 export const metadata = { title: "Lead" };
@@ -93,6 +94,7 @@ export default async function LeadPage({
         }
         actions={
           <>
+            <ContactActions variant="full" target={{ name, email: lead.email, phone: lead.phone, doNotContact: lead.doNotContact, leadId: id }} />
             {dupeRows.length > 0 ? (
               <MergeLeadDialog
                 targetId={id}

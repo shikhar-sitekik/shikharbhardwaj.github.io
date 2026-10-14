@@ -14,7 +14,7 @@ import { HBarChart } from "@/components/crm/bar-chart";
 import { FilterBar } from "@/components/crm/filter-bar";
 import { formatMoney, formatPercent } from "@/lib/format";
 
-export const metadata = { title: "Executive overview" };
+export const metadata = { title: "Dashboard" };
 
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -31,7 +31,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   return (
     <div>
       <PageHeader
-        title="Executive overview"
+        title="Dashboard"
         description={`${period.label} · ${pipeline?.name ?? "All pipelines"} · ${scopeNote} · values in ${cur}`}
         actions={<Link href="/reports" className="text-[12.5px] text-accent hover:underline">Metric definitions →</Link>}
       />
@@ -46,7 +46,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       </div>
       <div className="grid gap-4 p-4 md:p-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Stat label="Open pipeline" value={formatMoney(m.openPipeline, cur, { compact: true })} hint={`${m.openCount} open opportunities`} href="/opportunities?view=table&status=open" />
+          <Stat label="Open pipeline" value={formatMoney(m.openPipeline, cur, { compact: true })} hint={`${m.openCount} open deals`} href="/opportunities?view=table&status=open" />
           <Stat label="Weighted pipeline" value={formatMoney(m.weightedPipeline, cur, { compact: true })} hint="Σ amount × probability" />
           <Stat label={`Closed-won · ${period.label}`} value={formatMoney(m.closedWon, cur, { compact: true })} hint={`${m.wonCount} won · ${m.lostCount} lost`} tone="accent" />
           <Stat label="Win rate" value={formatPercent(m.winRate)} hint={m.winRate === null ? "No closed deals in period" : "Won ÷ (won + lost), by count"} />
@@ -81,7 +81,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <Card>
           <CardHeader title="Pipeline by owner" description={`Open and weighted pipeline; closed-won in ${period.label}`} />
           {m.byOwner.length === 0 ? (
-            <EmptyState title="No opportunities" />
+            <EmptyState title="No deals yet" />
           ) : (
             <Table>
               <THead>

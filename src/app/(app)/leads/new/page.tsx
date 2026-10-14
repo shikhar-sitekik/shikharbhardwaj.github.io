@@ -14,7 +14,7 @@ export default async function NewLeadPage() {
   const [statuses, owners] = await Promise.all([listLeadStatuses(ctx), memberOptions(ctx)]);
   return (
     <div>
-      <PageHeader title="New lead" crumbs={[{ label: "Leads", href: "/leads" }, { label: "New" }]} />
+      <PageHeader title="Add a lead" crumbs={[{ label: "Leads", href: "/leads" }, { label: "New" }]} />
       <div className="mx-auto max-w-3xl p-4 md:p-6">
         <LeadForm
           leadId={null}

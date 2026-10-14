@@ -752,6 +752,57 @@ export const webhookEvents = pgTable(
   ],
 );
 
+// ─── Email capture (BCC / forward-to-CRM) ───────────────────────────────────
+
+/** One private capture address per user per workspace. */
+export const emailCaptureTokens = pgTable(
+  "email_capture_tokens",
+  {
+    id: id(),
+    tenantId: tenantId(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** SHA-256 of the token: used to resolve inbound mail without exposing the token. */
+    tokenHash: text("token_hash").notNull(),
+    /** Token encrypted (AES-GCM) so the address can be shown to its owner again. */
+    tokenEncrypted: text("token_encrypted").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("email_capture_user_uq").on(t.tenantId, t.userId), uniqueIndex("email_capture_hash_uq").on(t.tokenHash)],
+);
+
+export const emailMessages = pgTable(
+  "email_messages",
+  {
+    id: id(),
+    tenantId: tenantId(),
+    capturedById: uuid("captured_by_id").references(() => users.id, { onDelete: "set null" }),
+    provider: text("provider").notNull(),
+    messageId: text("message_id").notNull(),
+    direction: text("direction").notNull(), // outbound | inbound
+    subject: text("subject").notNull(),
+    fromEmail: text("from_email").notNull(),
+    fromName: text("from_name"),
+    toEmails: text("to_emails").array().notNull().default(sql`'{}'::text[]`),
+    ccEmails: text("cc_emails").array().notNull().default(sql`'{}'::text[]`),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull(),
+    snippet: text("snippet"),
+    bodyText: text("body_text"),
+    attachmentCount: integer("attachment_count").notNull().default(0),
+    /** matched | unmatched | dismissed */
+    status: text("status").notNull(),
+    /** Records the email was attached to: [{ type, id }]. */
+    links: jsonb("links").$type<{ type: "lead" | "contact" | "account" | "opportunity"; id: string }[]>().notNull().default([]),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("email_messages_msgid_uq").on(t.tenantId, t.messageId),
+    index("email_messages_user_idx").on(t.tenantId, t.capturedById, t.createdAt),
+  ],
+);
+
+export type EmailMessage = typeof emailMessages.$inferSelect;
 export type IntegrationConnection = typeof integrationConnections.$inferSelect;
 export type Tenant = typeof tenants.$inferSelect;
 export type User = typeof users.$inferSelect;

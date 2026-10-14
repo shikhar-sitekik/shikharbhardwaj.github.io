@@ -1,4 +1,5 @@
 import {
+  Mail,
   BarChart3,
   Building2,
   CheckSquare,
@@ -44,6 +45,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   sparkles: Sparkles,
   folder: Folder,
   upload: Upload,
+  mail: Mail,
   plug: Plug,
   workflow: Workflow,
   settings: Settings,

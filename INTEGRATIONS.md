@@ -75,6 +75,31 @@ Never sign from browser JavaScript; the secret would leak. Use your site's backe
 
 **Tests:** `tests/integration/integrations.test.ts` covers creation, deduplication, forged signatures, unknown endpoints, rotation, disabling and tenant isolation. `tests/unit/crypto.test.ts` covers the cryptography.
 
+## Implemented: email capture (BCC / forward, via Postmark inbound)
+
+Each user gets a personal logging address on the **Email log** page, for example `abc123+<24-hex token>@inbound.postmarkapp.com`. BCC it on emails you send to clients, or forward client emails to it. Exato One then:
+
+1. Authenticates Postmark's POST to `/api/v1/inbound/email` with HTTP basic auth (password = `INBOUND_EMAIL_SECRET`, compared in constant time).
+2. Resolves the token (stored as SHA-256 plus an AES-GCM copy so the address can be re-displayed) to its tenant and user through the `resolve_email_capture` SECURITY DEFINER function. The user must still be an active member. Unknown or regenerated addresses are acknowledged with 200 and nothing is stored.
+3. Unwraps forwards from workspace members (Gmail, Outlook and Apple Mail formats) into the original message. Direction is "sent" when the original sender is a member, otherwise "received".
+4. Matches every external person on the thread to a contact, then an open lead, then a company by business domain. Only records **within the capturing user's data scope** are touched. A contact on exactly one open deal also links that deal.
+5. Logs one email activity per matched record (body capped at 8,000 characters; attachments counted, not stored), updates last-contacted dates, and stores the message (idempotent on `Message-ID`).
+6. Puts emails with no match into **Needs review**, where the user can create a lead from the sender, re-check after adding a contact, or dismiss.
+
+Captured mail is visible only to the user who captured it, plus the activity on the linked records.
+
+**Setup (about 10 minutes, free up to 100 inbound emails a month):**
+1. Create a Postmark account → **Servers → Create server** → open the **Default Inbound Stream** → copy the inbound address (`…@inbound.postmarkapp.com`).
+2. In Vercel set `POSTMARK_INBOUND_ADDRESS` (that address) and `INBOUND_EMAIL_SECRET` (`openssl rand -hex 24`), then redeploy.
+3. In Postmark → Inbound stream → **Settings → Webhook URL**:
+   `https://postmark:<INBOUND_EMAIL_SECRET>@<your-domain>/api/v1/inbound/email`
+   If Vercel Deployment Protection is on, append `?x-vercel-protection-bypass=<automation bypass secret>`.
+   Postmark's **Check** button sends a test payload without a token; it should return 200 `ignored`.
+
+Limits: Vercel caps request bodies at 4.5 MB, so emails with large attachments are rejected (413) and Postmark retries, then gives up. Use "Include raw email content" = off.
+
+**Tests:** `tests/unit/email-inbound.test.ts` covers parsing, forwards, direction and address handling. `tests/integration/email-capture.test.ts` covers auth, matching, deal linking, scope limits, idempotency, rotated addresses, the review queue and RLS.
+
 ## Planned connectors and what blocks them
 
 None of these is connected. Each needs credentials or vendor approval that only Exato can obtain.

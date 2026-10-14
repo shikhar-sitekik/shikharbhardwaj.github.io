@@ -34,6 +34,7 @@ Implementing these controls does **not** make Exato One compliant with GDPR, ISO
 ### Secrets and integrations
 - Integration secrets are encrypted with AES-256-GCM using `ENCRYPTION_KEY`, with rotation support via `ENCRYPTION_KEY_PREVIOUS`. They are shown once at creation or rotation and never returned to the client again.
 - Webhooks: `HMAC-SHA256(secret, t + "." + body)` with a 5-minute timestamp tolerance (replay protection), idempotency on event id or body hash, a rate limit of 120 per minute per endpoint, a 64 KB body cap, and a JSON-only content type.
+- Inbound email: basic auth on the webhook, per-user capture tokens stored only as SHA-256 plus an encrypted copy, revocable by regenerating. Matching is limited to the capturing user's data scope. Captured messages are readable only by the user who captured them.
 - The cron endpoint requires `Authorization: Bearer $CRON_SECRET`, compared in constant time.
 
 ### Headers

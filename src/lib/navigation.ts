@@ -33,6 +33,7 @@ export const NAV: NavGroup[] = [
       { key: "accounts", label: "Companies", href: "/accounts", icon: "building", permission: "account:read", status: "available" },
       { key: "opportunities", label: "Deals", href: "/opportunities", icon: "kanban", permission: "opportunity:read", status: "available" },
       { key: "tasks", label: "Tasks", href: "/tasks", icon: "check-square", permission: "activity:read", status: "available" },
+      { key: "email", label: "Email log", href: "/email", icon: "mail", permission: "activity:write", status: "available" },
     ],
   },
   {

@@ -57,6 +57,7 @@ tenants ─┬─ tenant_memberships ── users ── sessions
          ├─ activities (lead|account|contact|opportunity links)
          ├─ import_jobs ── import_rows (raw, status, errors, record_id, previous)
          ├─ integration_connections ── webhook_events
+         ├─ email_capture_tokens (per user)   email_messages (links → lead/contact/account/deal)
          ├─ audit_logs (append-only for the app role)   outbox_events   notifications
          └─ recent_views   custom_field_definitions
 jobs (global queue; tenant_id per job)   login_attempts (global)
@@ -66,7 +67,7 @@ Every exposed identifier is a random UUID. Core entities are soft-deleted with `
 
 **Lifecycle links.** A lead keeps `converted_account_id`, `converted_contact_id` and `converted_opportunity_id`. Contacts and opportunities keep `source_lead_id`. On conversion, the lead's activities are re-linked to the new records, so the timeline is continuous. `campaign_id` and `partner_id` columns exist on leads and opportunities, ready for the Phase 3 campaigns and partners modules; they carry no foreign key until those tables exist.
 
-**Entities from the brief not yet built.** These are campaigns and attribution, partners, products and price books, proposals, contracts and renewals, projects, documents, email and meeting tables, automations, and AI tables. They are planned per phase in PROJECT_PLAN.md. They are deliberately absent rather than created empty.
+**Entities from the brief not yet built.** These are campaigns and attribution, partners, products and price books, proposals, contracts and renewals, projects, documents, meeting tables, automations, and AI tables. They are planned per phase in PROJECT_PLAN.md. They are deliberately absent rather than created empty.
 
 ## Request lifecycle and security headers
 

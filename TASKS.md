@@ -19,14 +19,17 @@ _Last updated: 2026-10-13_
 - [x] Executive dashboard, reports (forecast by category, source conversion, loss reasons), metric definitions
 - [x] Administration: users/teams, roles, general settings (FX, thresholds, round-robin), scoring rules, audit log viewer, system health
 - [x] Integration framework + registry; website-form webhook connector (HMAC, replay window, idempotency, rate limit, encrypted secrets, rotation)
+- [x] Email capture: per-user BCC/forward address (Postmark inbound), auto-logging to contacts/leads/companies/deals within the user's scope, review queue for unmatched mail
 - [x] Postgres job queue with retries/dead-letter + Vercel Cron worker; transactional outbox
-- [x] Tests: 76 unit/integration (real Postgres) + 5 Playwright E2E; CI workflow
+- [x] Tests: 93 unit/integration (real Postgres) + 5 Playwright E2E; CI workflow
 - [x] Docs: README, ARCHITECTURE, SECURITY, INTEGRATIONS, PROJECT_PLAN, METRICS; `.env.example`; `vercel.json`; dev-only demo seed
 
 ## In progress
 - [ ] Phase 3 revenue modules (campaigns, partners, products, proposals, renewals)
 
 ## Blocked (external dependency)
+- [ ] Turn on email capture in production: needs a Postmark server and its inbound address
+- [ ] Outlook two-way sync (Microsoft Graph): needs an Entra app registration and admin consent
 - [ ] Microsoft 365 / Google Workspace / Meta / LinkedIn / Google Ads connectors: need app registrations, OAuth clients and vendor approvals (see INTEGRATIONS.md)
 - [ ] Production deployment: needs a Vercel project, a Supabase project and secrets; not available in this session
 - [ ] Email invitations and password reset: need an email provider and a verified sending domain
